@@ -1,1 +1,0 @@
-web: gunicorn poland_farmer:app

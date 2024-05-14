@@ -7,9 +7,6 @@ from python_anticaptcha import AnticaptchaClient, ImageToTextTask
 from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.ext import Job
-from flask import Flask, request
-from telegram import Bot
-from telegram.ext import Dispatcher
 
 # Введите ваш ключ API антикапчи и токен Телеграм-бота
 api_key = '8af32078ec97f18af3fdedbd5a057fdc'
@@ -17,16 +14,6 @@ bot_token = '6167216566:AAFAmhKsPXGEs6eGQc4jAyHSfiaogVI3ue8'
 
 captcha_solver = AnticaptchaClient(api_key)
 repeat_interval = 60
-
-app = Flask(__name__)
-bot = Bot(token=bot_token)
-dispatcher = Dispatcher(bot, None, use_context=True)
-
-@app.route(f'/{bot_token}', methods=['POST'])
-def webhook_handler():
-    update = Update.de_json(request.get_json(force=True), bot)
-    dispatcher.process_update(update)
-    return 'ok'
 
 def solve_captcha(captcha_image):
     task = ImageToTextTask(fp=BytesIO(captcha_image))
@@ -127,15 +114,16 @@ def start_screenshot_job(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
+    updater = Updater(bot_token)
+
+    dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("stop", stop))
     dispatcher.add_handler(CommandHandler("screenshot", start_screenshot_job))
-    
-    # Установка вебхука
-    bot.set_webhook(f'https://overflowing-presence-production.up.railway.app/{bot_token}')
-    
-    # Запуск Flask сервера
-    app.run(host='0.0.0.0', port=8443)
+
+    updater.start_polling()  # Запуск бота
+
+    updater.idle()  # Ожидание остановки бота (например, при получении сигнала завершения работы)
 
 if __name__ == '__main__':
     main()
