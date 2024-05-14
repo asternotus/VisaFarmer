@@ -1,1 +1,1 @@
-web: python poland_farmer.py
+web: gunicorn poland_farmer:app
