@@ -23,7 +23,7 @@ def solve_captcha(captcha_image):
 
 async def get_screenshot():
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=False)
+        browser = await p.chromium.launch(headless=True)
         context = await browser.new_context()
         page = await context.new_page()
         
