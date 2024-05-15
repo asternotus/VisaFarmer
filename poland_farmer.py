@@ -9,9 +9,13 @@ from telegram import Update, InputFile
 from telegram.ext import Updater, CommandHandler, CallbackContext
 from telegram.ext import Job
 
-# Set up logging
-logging.basicConfig(filename='bot_log.log', level=logging.INFO, 
-                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+# Set up logging to both file and console
+logging.basicConfig(level=logging.INFO,
+                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                    handlers=[
+                        logging.FileHandler("bot_log.log"),
+                        logging.StreamHandler()
+                    ])
 
 # Enter your AntiCaptcha API key and Telegram bot token
 api_key = '8af32078ec97f18af3fdedbd5a057fdc'
