@@ -22,7 +22,7 @@ api_key = '8af32078ec97f18af3fdedbd5a057fdc'
 bot_token = '6167216566:AAFAmhKsPXGEs6eGQc4jAyHSfiaogVI3ue8'
 
 captcha_solver = AnticaptchaClient(api_key)
-repeat_interval = 60
+repeat_interval = 300
 
 def solve_captcha(captcha_image):
     logging.info("Starting to solve captcha...")
