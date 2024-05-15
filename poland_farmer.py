@@ -98,7 +98,7 @@ def run_async_task(coroutine, *args, **kwargs):
 async def send_screenshot_async(context: CallbackContext) -> None:
     chat_id = context.job.context
     logging.info(f"Starting screenshot process for user {chat_id}")
-    context.bot.send_message(chat_id, 'Getting screenshot...')
+    context.bot.send_message(chat_id, 'Получаю скриншот...')
     max_attempts = 3
     success = False
     
@@ -116,7 +116,7 @@ async def send_screenshot_async(context: CallbackContext) -> None:
 
     if not success:
         logging.error("Failed to get screenshot after multiple attempts.")
-        context.bot.send_message(chat_id, "I couldn't solve the captcha :( Please enter the /screenshot command to try again")
+        context.bot.send_message(chat_id, "Сори, я не решил капчу :( Попробую ещё раз")
 
     logging.info("Scheduling next attempt")
     context.job_queue.run_once(lambda ctx: Thread(target=run_async_task, args=(send_screenshot_async, ctx)).start(), repeat_interval, context=chat_id)
