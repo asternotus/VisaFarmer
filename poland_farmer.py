@@ -22,7 +22,7 @@ api_key = '8af32078ec97f18af3fdedbd5a057fdc'
 bot_token = '6167216566:AAFAmhKsPXGEs6eGQc4jAyHSfiaogVI3ue8'
 
 captcha_solver = AnticaptchaClient(api_key)
-repeat_interval = 30
+repeat_interval = 300
 current_interval = repeat_interval  # Add this line to store the current interval
 
 def solve_captcha(captcha_image):
