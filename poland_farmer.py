@@ -22,7 +22,8 @@ api_key = '8af32078ec97f18af3fdedbd5a057fdc'
 bot_token = '6167216566:AAFAmhKsPXGEs6eGQc4jAyHSfiaogVI3ue8'
 
 captcha_solver = AnticaptchaClient(api_key)
-repeat_interval = 300
+repeat_interval = 30
+current_interval = repeat_interval  # Add this line to store the current interval
 
 def solve_captcha(captcha_image):
     logging.info("Starting to solve captcha...")
@@ -36,7 +37,7 @@ def solve_captcha(captcha_image):
 async def get_screenshot():
     logging.info("Launching Playwright browser...")
     async with async_playwright() as p:
-        browser = await p.chromium.launch(headless=True)
+        browser = await p.chromium.launch(headless=False)
         logging.info("Browser launched.")
         context = await browser.new_context()
         page = await context.new_page()
@@ -89,6 +90,8 @@ def stop(update: Update, context: CallbackContext) -> None:
     chat_id = update.message.chat_id
     logging.info(f"Received /stop command from user {chat_id}")
     context.user_data.pop(chat_id, None)
+    global current_interval
+    current_interval = 99999999  # Set a very large interval to effectively stop the job
     update.message.reply_text("Stopped")
 
 def run_async_task(coroutine, *args, **kwargs):
@@ -119,7 +122,8 @@ async def send_screenshot_async(context: CallbackContext) -> None:
         context.bot.send_message(chat_id, "Сори, я не решил капчу :( Попробую ещё раз")
 
     logging.info("Scheduling next attempt")
-    context.job_queue.run_once(lambda ctx: Thread(target=run_async_task, args=(send_screenshot_async, ctx)).start(), repeat_interval, context=chat_id)
+    global current_interval
+    context.job_queue.run_once(lambda ctx: Thread(target=run_async_task, args=(send_screenshot_async, ctx)).start(), current_interval, context=chat_id)
 
 def send_screenshot(context: CallbackContext) -> None:
     logging.info(f"Starting send_screenshot function for user {context.job.context}")
@@ -135,7 +139,10 @@ def start_screenshot_job(update: Update, context: CallbackContext) -> None:
             logging.info("Job already running for this user.")
             update.message.reply_text("A job is already running. Use /stop to stop it.")
             return
-        
+    
+    global current_interval
+    current_interval = repeat_interval  # Reset to the original interval
+    
     logging.info("Starting new job to get screenshot.")
     context.job_queue.run_once(lambda ctx: Thread(target=run_async_task, args=(send_screenshot_async, ctx)).start(), 0, context=chat_id)
 
